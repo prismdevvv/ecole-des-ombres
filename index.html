@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>École des Ombres</title>
+<style>
+:root{--bg:#1a0f29;--side:#11071c;--panel:rgba(19,9,31,.88);--ink:#efe9f6;--mute:#b5a8c9;--line:rgba(196,168,240,.18);--acc:#b99ae0;--shade:#030107;--board:#d9b87a;--bl:#5b4524;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Georgia,"Noto Serif JP",serif;min-height:100vh}
+#bg{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none}
+.sh{position:absolute;color:var(--shade);filter:blur(9px)}.sh svg{display:block;width:100%;height:auto}
+#side{position:fixed;left:0;top:0;bottom:0;width:210px;background:var(--side);border-right:1px solid var(--line);z-index:5;display:flex;flex-direction:column;padding:24px 14px;padding-top:calc(24px + env(safe-area-inset-top,0px))}
+#side .logo{font-size:14px;letter-spacing:.25em;color:var(--acc);cursor:pointer;margin-bottom:26px;text-align:center}
+.tab{background:none;border:0;border-left:3px solid transparent;color:var(--mute);text-align:left;font:inherit;padding:11px 12px;cursor:pointer;letter-spacing:.06em}
+.tab:hover{color:var(--ink)}.tab.on{color:var(--ink);border-left-color:var(--acc);background:rgba(255,255,255,.07)}
+#me{margin-top:auto;font-size:12px;color:var(--mute)}
+#me input,#me select,.f input,.f select,.f textarea{width:100%;background:rgba(0,0,0,.2);border:1px solid var(--line);color:var(--ink);padding:8px;font:inherit;font-size:14px;margin:3px 0 8px;border-radius:2px}
+main{position:relative;z-index:2;margin-left:210px;min-height:100vh}
+.view{display:none;padding:44px 34px 70px;max-width:980px;margin:0 auto}.view.on{display:block}
+#v-home{padding:0;max-width:none;margin:0}#home{display:none;min-height:100vh;align-items:center;justify-content:center;position:relative;overflow:hidden;max-width:none;padding:0}
+#home.on{display:flex}
+#home h1{font-weight:400;letter-spacing:.2em;font-size:clamp(30px,6vw,64px);text-align:center;position:relative;z-index:3;margin:0}
+#home .big{position:absolute;right:6%;bottom:-6%;height:100vh;aspect-ratio:100/260;color:var(--shade);transform:rotate(-13deg);transform-origin:50% 100%;filter:blur(22px);opacity:.9;z-index:1}
+#home .big svg{width:100%;height:100%}
+h2{font-weight:400;letter-spacing:.1em;margin:0 0 6px;font-size:28px}.sub{color:var(--mute);margin:0 0 26px}
+.pnl{background:var(--panel);border:1px solid var(--line);padding:16px 18px;border-radius:3px;margin-bottom:12px}
+.pyr{display:flex;flex-direction:column;align-items:center;gap:8px}
+.rk{background:var(--panel);border:1px solid var(--line);padding:12px 16px;display:flex;gap:14px;align-items:center;border-radius:3px}
+.rk.top{border-color:var(--acc)}
+.pc{flex:none;width:42px;height:48px;background:#efd9a4;color:#201507;display:grid;place-items:center;font:700 24px "Noto Serif JP",serif;clip-path:polygon(50% 0,92% 14%,100% 100%,0 100%,8% 14%)}
+.rk b{font-weight:400;font-size:17px}.rk small{display:block;color:var(--mute);font-size:13px;line-height:1.35}.rk em{font-style:normal;color:var(--acc);font-size:11px;letter-spacing:.2em}
+button.b{background:none;border:1px solid var(--acc);color:var(--acc);padding:7px 14px;cursor:pointer;font:inherit;font-size:14px;margin:2px 6px 2px 0;border-radius:2px}
+button.b:hover{background:var(--acc);color:#14171a}button.b.no{border-color:#c46;color:#c46}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:22px}@media(max-width:820px){.cols{grid-template-columns:1fr}}
+h3{font-weight:400;letter-spacing:.08em;margin:18px 0 10px;font-size:18px;color:var(--acc)}
+details summary{cursor:pointer}details p,.pre{white-space:pre-wrap;margin:8px 0 0;color:var(--mute);font-size:15px}
+.badge{font-size:11px;letter-spacing:.15em;padding:2px 8px;border:1px solid var(--line);margin-left:8px;color:var(--mute)}
+.badge.ok{color:#7fd19a;border-color:#7fd19a}.badge.ko{color:#e07a8f;border-color:#e07a8f}
+.meta{font-size:12px;color:var(--mute)}
+#board{display:grid;grid-template-columns:repeat(9,1fr);width:100%;aspect-ratio:1;background:var(--board);border:3px solid var(--bl)}
+.cell{border:1px solid var(--bl);display:grid;place-items:center;cursor:pointer;padding:0;background:transparent;font:inherit}
+.cell.sel{background:rgba(201,168,92,.75)}.cell.last{background:rgba(110,150,140,.5)}
+.p{width:84%;height:90%;background:#efd9a4;color:#201507;display:grid;place-items:center;font:700 clamp(16px,4.4vw,34px) "Noto Serif JP",serif;clip-path:polygon(50% 0,90% 14%,100% 100%,0 100%,10% 14%)}.p.w{transform:rotate(180deg)}
+.gw{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}.gs{flex:1 1 280px}
+.seat{display:flex;justify-content:space-between;align-items:center;gap:8px}
+#note{color:var(--acc);font-size:13px;min-height:20px}
+@media(max-width:700px){#side{position:sticky;width:100%;flex-direction:row;flex-wrap:wrap;align-items:center;padding:8px;bottom:auto;border-right:0;border-bottom:1px solid var(--line)}#side .logo{margin:0 10px 0 0}.tab{padding:7px 9px;border-left:0;border-bottom:3px solid transparent}.tab.on{border-bottom-color:var(--acc)}#me{display:none}main{margin-left:0}.view{padding:28px 16px 60px}#home .big{right:-8%}}
+#gate{display:flex;position:fixed;inset:0;z-index:30;background:rgba(5,2,10,.96);align-items:center;justify-content:center}#v-prof select{width:auto;margin:6px 0 0}
+#toast{display:none;position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:40;background:#120a1d;border:1px solid var(--acc);color:var(--ink);padding:10px 16px;border-radius:3px;font-size:14px;max-width:90%}
+#vig{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 30%,rgba(3,1,7,.78) 100%)}
+.sh{transform:rotate(var(--r,0deg));animation:sway 18s ease-in-out infinite alternate}
+@keyframes sway{from{transform:translateX(-18px) rotate(var(--r,0deg))}to{transform:translateX(30px) rotate(calc(var(--r,0deg) + 3deg))}}
+@keyframes loom{0%{transform:rotate(-13deg) scale(1);opacity:.7}100%{transform:rotate(-18deg) scale(1.08) translateX(-3%);opacity:.97}}
+@keyframes loom2{0%{transform:rotate(10deg) scale(1);opacity:.35}100%{transform:rotate(16deg) scale(1.1);opacity:.6}}
+#home .big{animation:loom 12s ease-in-out infinite alternate}
+#home .big2{right:auto;left:7%;height:78vh;filter:blur(36px);animation:loom2 17s ease-in-out infinite alternate}
+#home h1{text-shadow:0 0 36px rgba(168,139,214,.4)}
+#rFilt{width:auto;background:rgba(0,0,0,.3);border:1px solid var(--line);color:var(--ink);padding:6px;font:inherit;margin-bottom:12px}
+@media(prefers-reduced-motion:reduce){.sh,#home .big,#home .big2{animation:none}}
+#v-shogi,#v-regle{max-width:1180px}
+#bw{display:grid;grid-template-columns:1fr 24px;grid-template-rows:24px auto;width:min(720px,100%)}
+#fl,#rl{display:grid;font-size:12px;color:var(--mute);text-align:center;align-items:center}#fl{grid-template-columns:repeat(9,1fr)}#rl{grid-template-rows:repeat(9,1fr)}
+#hS,#hG{font-size:16px;min-height:28px;margin:8px 0;color:var(--ink)}
+.pcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:10px}
+.mv{display:grid;grid-template-columns:repeat(5,24px);gap:2px;margin:10px 0}
+.mv i{width:24px;height:24px;background:rgba(255,255,255,.04);border:1px solid var(--line);display:grid;place-items:center;font-style:normal;font-size:14px}
+.mv i.s{background:var(--acc)}.mv i.l{background:rgba(168,139,214,.45)}.mv i.c{background:#efd9a4;color:#201507;font-weight:700}
+.leg{display:flex;gap:16px;align-items:center;margin:4px 0 22px}.leg i{display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-right:6px;border:1px solid var(--line)}
+.rgs h3{margin-top:30px}.rgs p{color:var(--mute);margin:6px 0}.rgs ol{color:var(--mute);padding-left:22px}.rgs li{margin:5px 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chips span{border:1px solid var(--line);padding:5px 10px;font-size:14px;background:var(--panel)}.chips b{color:var(--acc);font-weight:400}
+.site{border-color:var(--acc)}
+#ann{padding:10px 34px;background:var(--panel);border-bottom:1px solid var(--acc);font-size:14px;display:none;position:relative;z-index:3}#ann[data-v="home"]{display:none!important}
+.bar{height:6px;background:rgba(255,255,255,.08);margin-top:8px}.bar i{display:block;height:100%;background:var(--acc)}
+.ens summary{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.ens .pr{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:10px 0}.ens .pr>div{border-left:2px solid var(--acc);padding:2px 12px}
+.ens label{display:flex;gap:10px;align-items:flex-start;margin:8px 0;cursor:pointer}.ens input{width:auto;margin:6px 0 0}
+@media(max-width:700px){#ann{padding:10px 16px}}
+#side .logo{font-size:38px;letter-spacing:0;line-height:1;margin-bottom:24px;text-shadow:0 0 14px rgba(168,139,214,.5)}#side .logo small{display:block;font-size:11px;letter-spacing:.5em;color:var(--mute);margin-top:6px;text-shadow:none}
+@media(max-width:700px){#side .logo{font-size:26px;margin:0 10px 0 0}#side .logo small{display:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="om" viewBox="0 0 100 260"><ellipse cx="50" cy="26" rx="11" ry="17" fill="currentColor"/><path d="M40 40H60L68 50Q90 58 90 90L98 205Q100 252 50 260Q0 252 2 205L10 90Q10 58 32 50Z" fill="currentColor"/></symbol>
+<symbol id="omH" viewBox="0 0 140 240"><ellipse cx="36" cy="68" rx="13" ry="16" fill="currentColor"/><path d="M44 78Q70 40 108 58Q138 76 134 150L140 238H26L36 160Q34 108 44 78Z" fill="currentColor"/></symbol>
+<symbol id="omC" viewBox="0 0 130 240"><ellipse cx="64" cy="70" rx="14" ry="16" fill="currentColor"/><path d="M40 86Q64 76 88 86L112 150Q124 200 106 232H22Q8 200 18 150Z" fill="currentColor"/></symbol>
+<symbol id="omT" viewBox="0 0 100 260"><ellipse cx="50" cy="22" rx="9" ry="15" fill="currentColor"/><path d="M42 34H58L66 46L78 62L84 204L75 206L67 92L65 256H35L33 92L25 206L16 204L22 62L34 46Z" fill="currentColor"/></symbol></svg>
+<div id="bg"></div><div id="vig"></div>
+
+<aside id="side">
+  <div class="logo" data-go="home" title="影 — kage, l'ombre">影<small>かげ</small></div>
+  <button class="tab" data-go="hier">Hiérarchie</button>
+  <button class="tab" data-go="cours">Cours</button>
+  <button class="tab" data-go="ens">Enseignements</button>
+  <button class="tab" data-go="rap">Rapport</button>
+  <button class="tab" data-go="regle">Règlement</button>
+  <button class="tab" data-go="shogi">Shogi</button>
+  <button class="tab" data-go="prof">Profil</button>
+  <div id="me"></div>
+</aside>
+
+<main>
+<div id="ann" data-v="home"></div>
+<section class="view on" id="v-home"><div id="home" class="on" style="display:flex"><div class="big big2"><svg><use href="#om"/></svg></div><div class="big"><svg><use href="#om"/></svg></div><h1>L'ÉCOLE DES OMBRES</h1></div></section>
+
+<section class="view" id="v-hier"><h2>Hiérarchie</h2><p class="sub">Du sommet à la base.</p><div class="pyr" id="pyr"></div></section>
+
+<section class="view" id="v-cours"><h2>Cours</h2><p class="sub">Écris un cours accessible à tous, ou planifie un cours pour les prochains professeurs.</p>
+<div class="pnl f"><label>Type<select id="cKind"><option value="cours">Cours (publié, lisible par tous)</option><option value="planifie">Cours planifié (pour un prochain professeur)</option></select></label>
+<input id="cTitle" placeholder="Titre (ex : Art oratoire — le silence)"><input id="cDate" type="date"><input id="cProf" placeholder="Professeur (nom, ou « à désigner »)"><textarea id="cBody" rows="6" placeholder="Contenu du cours, ou consignes pour le futur professeur"></textarea><button class="b" id="cSend">Publier</button></div>
+<div class="cols"><div><h3>Planning</h3><div id="cPlan"></div></div><div><h3>Cours publiés</h3><div id="cList"></div></div></div></section>
+
+<section class="view" id="v-ens"><h2>Enseignements</h2><p class="sub">Les savoirs de l'école : des principes à retenir et des exercices à accomplir. Ta progression apparaît dans ton profil.</p><div id="exoEd" class="pnl f" style="display:none"><b>Ajouter un exercice pour les membres</b><select id="exD"></select><div class="meta">Date limite (facultative)</div><input id="exDue" type="date"><textarea id="exT" rows="2" maxlength="300" placeholder="Consigne de l'exercice"></textarea><button class="b" id="exGo">Ajouter</button></div>
+<div id="ens" class="ens"></div></section>
+<section class="view" id="v-rap"><h2>Rapport</h2><p class="sub">Chaque membre rédige son rapport d'information. Les hauts gradés le valident.</p>
+<div class="pnl f"><input id="rNom" placeholder="Nom :"><input id="rDate" type="date"><div class="meta">Village concerné · Niveau de fiabilité</div><select id="rCible"><option>Konoha</option><option>Suna</option><option>Autre</option></select><select id="rFiab"><option>Confirmé</option><option>Probable</option><option>Rumeur</option></select><textarea id="rText" rows="6" placeholder="Rapport :"></textarea><button class="b" id="rSend">Envoyer le rapport</button></div>
+<h3>Rapports reçus</h3><select id="rFilt"><option value="">Tous</option><option value="attente">En attente</option><option value="validé">Validés</option><option value="rejeté">Rejetés</option></select><div id="rList"></div></section>
+
+<section class="view" id="v-shogi"><h2>Shogi</h2>
+<div class="pnl" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><span class="meta">Première partie ? Les règles du jeu sont expliquées dans l'onglet Règlement.</span><button class="b" data-go="regle">Lire le règlement</button></div>
+<div class="gw"><div><div id="hG" class="meta"></div><div id="bw"><div id="fl"></div><div></div><div id="board"></div><div id="rl"></div></div><div id="hS" class="meta"></div></div>
+<div class="gs"><div class="pnl"><div class="seat"><span>Sente (bas) : <b id="nS">—</b></span><button class="b" id="tS">S'asseoir</button></div><div class="seat"><span>Gote (haut) : <b id="nG">—</b></span><button class="b" id="tG">S'asseoir</button></div><div class="meta" id="turn"></div><button class="b" id="reset">Nouvelle partie</button><div class="meta" style="margin-top:8px">La partie se termine quand un Roi est capturé : le résultat s'ajoute automatiquement aux profils.</div></div>
+<div class="pnl"><b>Classement</b><div id="lb" class="meta" style="margin-top:6px;line-height:1.9">—</div></div>
+<div class="pnl"><b>Derniers coups</b><div id="log" class="meta" style="margin-top:6px;line-height:1.9">—</div></div>
+<div class="pnl"><b>Vocal</b><div class="meta">Parle avec ton adversaire pendant la partie (micro requis ; le site doit être en HTTPS ou sur localhost).</div><button class="b" id="vJoin">Rejoindre le vocal</button><div id="vSt" class="meta"></div><audio id="aud" autoplay></audio></div><div id="note"></div></div></div></section>
+<section class="view" id="v-regle"><h2>Règlement du Shogi</h2><p class="sub">Le jeu des généraux : tout ce qu'il faut savoir pour jouer, en quelques minutes.</p><div id="rg"></div></section>
+<section class="view" id="v-prof"><h2>Profil</h2><p class="sub">Tes parties, tes rapports et tes cours s'accumulent ici.</p><div id="pBox"></div><h3>Mon nom de code</h3><div class="pnl f"><div class="meta">Le nom sous lequel tu agis à l'école. Il apparaît sur tes rapports et dans la liste des membres.</div><input id="cdIn" maxlength="30" placeholder="Nom de code"><button class="b" id="cdGo">Enregistrer</button></div>
+<div id="annEd" class="pnl f" style="display:none"><b>Annonce de l'école</b><div class="meta">Visible par tous les membres, en haut de chaque page.</div><textarea id="annT" rows="3" maxlength="600" placeholder="Message pour toute l'école"></textarea><button class="b" id="annGo">Publier</button><button class="b no" id="annDel">Effacer</button></div>
+<p class="meta">Connexion sécurisée avec Discord.</p><h3>Membres de l'école</h3><div id="pList"></div></section>
+</main>
+<div id="gate"><div class="pnl f" style="width:min(420px,92%)"><h2>École des Ombres</h2><p class="meta">Connecte-toi avec Discord pour retrouver ton personnage Zenkai.</p><button class="b" id="gGo">Se connecter avec Discord</button><select id="character" hidden aria-label="Ton personnage"></select><button id="choose" class="b" hidden>Utiliser ce personnage</button><div id="gErr" role="alert" class="meta" style="color:#e07a8f;margin-top:8px"></div></div></div><div id="toast"></div>
+
+<script src="vendor/supabase.js"></script>
+<script src="config.js"></script>
+<script> 
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const RK=[["王","Roi","Ōshō","Fondateur et gérant de l'école."],["飛","Tour","Hisha","Haut gradé de l'école."],["角","Fou","Kaku","Manipulation et influence indirecte, formation des membres."],["金","Général d'or","Kin","Référent d'un groupe de membres."],["銀","Général d'argent","Gin","Analyste : recoupe les sources, repère les failles."],["桂","Cavalier","Keima","Infiltre les milieux fermés."],["香","Lance","Kyōsha","Missions ciblées en ligne droite."],["歩","Pion","Fuhyō","Recrue : observe et rapporte."]];
+const HIGH=["Roi","Tour"];
+const toast=m=>{const t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display="none",3500)};
+let sb=null, chosen=null, polling=false, cursor=null;
+let S={users:[],cours:[],rapports:[],parties:[],game:null},me=null,es=null,sel=-1;
+const high=()=>me&&HIGH.includes(me.role);
+async function api(path,b={}){if(!sb)throw Error("Configure Supabase dans config.js.");const {data:{session}}=await sb.auth.getSession();if(!session)throw Error("Reconnecte-toi avec Discord.");const r=await fetch(window.SITE_CONFIG.supabaseUrl+"/functions/v1/ecole",{method:"POST",headers:{"Content-Type":"application/json",apikey:window.SITE_CONFIG.supabaseKey,Authorization:"Bearer "+session.access_token},body:JSON.stringify({...b,path,character:chosen})});const j=await r.json();if(!r.ok){const e=new Error(j.error||"Erreur");e.characters=j.characters;throw e;}return j;}
+const act=async(type,b)=>{try{await api("action",{type,...b});return true}catch(e){toast(e.message);return false}};
+$("rDate").value=new Date().toISOString().slice(0,10);
+// navigation
+function go(v){document.querySelectorAll(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.go===v));scrollTo(0,0);decor(v);$("ann").dataset.v=v}
+document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
+// ombres de fond
+const POSE={om:[100,260],omH:[140,240],omC:[130,240],omT:[100,260]};
+const POOL={hier:["omH","omT"],cours:["omC","omH"],rap:["omT","om"],shogi:["omH","omC"],prof:["om","omT","omH"],regle:["omH","omT"],ens:["omT","omH","om"]};
+function decor(v){const bg=$("bg");bg.innerHTML="";const pool=POOL[v];if(!pool)return;const n=2+Math.floor(Math.random()*2);
+ for(let i=0;i<n;i++){const id=pool[Math.floor(Math.random()*pool.length)],[w,h]=POSE[id];const d=document.createElement("div");d.className="sh";
+  const left=i%2?58+Math.random()*28:Math.random()*20-4,tilt=(Math.random()<.5?-1:1)*(id==="om"?14+Math.random()*10:Math.random()*7);
+  d.style.cssText=`width:${240+Math.random()*190}px;left:${left}%;top:${Math.random()*45}%;opacity:${.4+Math.random()*.2};--r:${tilt}deg;animation-delay:-${Math.random()*18}s;animation-duration:${14+Math.random()*12}s;filter:blur(${24+Math.random()*18}px)`;
+  d.innerHTML=`<svg viewBox="0 0 ${w} ${h}"><use href="#${id}"/></svg>`;bg.appendChild(d)}}
+// hiérarchie
+$("pyr").innerHTML=RK.map((r,i)=>`<div class="rk ${i<2?"top":""}" style="width:${46+i*7.7}%;min-width:min(100%,300px)"><div class="pc">${r[0]}</div><div><em>${r[2].toUpperCase()}</em><b> ${r[1]}</b><small>${r[3]}</small></div></div>`).join("");
+// cours
+function renderC(){
+ const card=c=>{const on=me&&c.inscrits.includes(me.name);return `<div class="pnl"><details><summary>${esc(c.title)}<span class="badge">${esc(c.date||"")}</span></summary><p>${esc(c.body)}</p></details><div class="meta">Prof : ${esc(c.prof||"—")} · par ${esc(c.author)} (${esc(c.role)})</div>${c.kind==="planifie"?`<div class="meta">Inscrits (${c.inscrits.length}) : ${c.inscrits.map(esc).join(", ")||"personne"}</div><button class="b" data-ci="${c.id}">${on?"Me désinscrire":"Rejoindre ce cours"}</button>`:""}${me&&(c.author===me.name||high())?`<button class="b no" data-dc="${c.id}">Supprimer</button>`:""}</div>`};
+ const pl=S.cours.filter(c=>c.kind==="planifie").sort((a,b)=>(a.date||"9").localeCompare(b.date||"9"));
+ const li=S.cours.filter(c=>c.kind!=="planifie").sort((a,b)=>b.ts-a.ts);
+ $("cPlan").innerHTML=pl.map(card).join("")||'<div class="meta">Aucun cours planifié.</div>';
+ $("cList").innerHTML=li.map(card).join("")||'<div class="meta">Aucun cours publié.</div>';
+}
+$("cSend").onclick=async()=>{if(await act("cours.add",{kind:$("cKind").value,title:$("cTitle").value,date:$("cDate").value,prof:$("cProf").value,body:$("cBody").value}))$("cTitle").value=$("cBody").value=$("cProf").value=""};
+// rapports
+function renderR(){
+ $("rList").innerHTML=S.rapports.filter(r=>!$("rFilt").value||r.status===$("rFilt").value).sort((a,b)=>b.ts-a.ts).map(r=>{const cl=r.status==="validé"?"ok":r.status==="rejeté"?"ko":"";
+  return `<div class="pnl"><b>${esc(r.nom)}</b>${r.code?` <span class="meta">« ${esc(r.code)} »</span>`:""} <span class="meta">(${esc(r.role)}) · ${esc(r.date)}</span><span class="badge">${esc(r.cible||"")}</span><span class="badge">${esc(r.fiab||"")}</span><span class="badge ${cl}">${esc(r.status.toUpperCase())}</span><div class="pre">${esc(r.text)}</div>${r.by?`<div class="meta">Traité par ${esc(r.by)}${r.note?" — « "+esc(r.note)+" »":""}</div>`:""}${high()&&r.status==="attente"?`<button class="b" data-v="${r.id}|validé">Valider</button><button class="b no" data-v="${r.id}|rejeté">Rejeter</button>`:""}${me&&(r.nom===me.name||high())?`<button class="b no" data-dr="${r.id}">Supprimer</button>`:""}</div>`}).join("")||'<div class="meta">Aucun rapport.</div>';
+}
+$("rSend").onclick=async()=>{if(await act("rap.add",{date:$("rDate").value,text:$("rText").value,cible:$("rCible").value,fiab:$("rFiab").value}))$("rText").value=""};
+$("rFilt").onchange=renderR;
+$("annGo").onclick=async()=>{if(await act("annonce.set",{text:$("annT").value})){toast("Annonce publiée.");$("annT").value=""}};
+$("annDel").onclick=async()=>{if(await act("annonce.set",{text:""}))toast("Annonce effacée.")};
+// profil
+const stats=n=>{let p=0,w=0,l=0;S.parties.forEach(x=>{const a=x.sente===n,b=x.gote===n;if(!a&&!b)return;p++;(x.winner==="S")===a?w++:l++});return{p,w,l}};
+function renderP(){
+ if(!me)return;if(document.activeElement!==$("cdIn"))$("cdIn").value=me.code||"";
+ const s=stats(me.name),nr=S.rapports.filter(r=>r.nom===me.name).length,nc=S.cours.filter(c=>c.inscrits.includes(me.name));
+ const td=new Date().toISOString().slice(0,10),up=nc.filter(c=>!c.date||c.date>=td),pa=nc.filter(c=>c.date&&c.date<td);
+ const cl=(c,u)=>`<div class="pnl"><b>${esc(c.title)}</b><span class="badge">${esc(c.date||"date à venir")}</span><div class="meta">Professeur : ${esc(c.prof||"—")}</div>${u?`<button class="b no" data-ci="${c.id}">Me désinscrire</button>`:""}</div>`;
+ const mr=S.rapports.filter(x=>x.nom===me.name).sort((a,b)=>b.ts-a.ts),mp=S.parties.filter(x=>x.sente===me.name||x.gote===me.name).slice(-8).reverse();
+ $("pBox").innerHTML=`<div class="pnl"><b>${esc(me.name)}</b>${me.code?` <span class="meta">« ${esc(me.code)} »</span>`:""} <span class="badge">${esc(me.role.toUpperCase())}</span><div class="meta">Parties : ${s.p} · Victoires ${s.w} · Défaites ${s.l} · Rapports : ${nr} · Cours suivis ou à venir : ${nc.length}</div></div>
+ <h3>Ma formation</h3>${DISC.map(d=>{const L=allEx(d),n=L.filter(x=>(me.done||[]).includes(x[0])).length;return `<div class="pnl"><b>${d.t}</b> <span class="meta">${n}/${L.length} exercices accomplis</span><div class="bar"><i style="width:${100*n/(L.length||1)}%"></i></div></div>`}).join("")}<h3>Mes cours</h3><div class="meta">À venir</div>${up.map(c=>cl(c,1)).join("")||'<div class="meta">Aucun cours à venir. Rejoins-en un dans l\'onglet Cours.</div>'}${pa.length?`<div class="meta" style="margin-top:12px">Déjà suivis</div>${pa.map(c=>cl(c,0)).join("")}`:""}
+ <h3>Mes rapports</h3>${mr.map(x=>`<div class="pnl"><span class="meta">${esc(x.date)} · ${esc(x.cible||"")} · ${esc(x.fiab||"")}</span><span class="badge ${x.status==="validé"?"ok":x.status==="rejeté"?"ko":""}">${esc(x.status.toUpperCase())}</span><div class="pre">${esc(x.text.slice(0,140))}${x.text.length>140?"…":""}</div></div>`).join("")||'<div class="meta">Aucun rapport envoyé.</div>'}
+ <h3>Mes parties</h3>${mp.map(x=>{const sd=x.sente===me.name?"S":"G";return `<div class="pnl"><b>${x.winner===sd?"Victoire":"Défaite"}</b> <span class="meta">contre ${esc(sd==="S"?x.gote:x.sente)} · ${sd==="S"?"Sente":"Gote"} · ${new Date(x.ts).toLocaleDateString("fr-FR")}</span></div>`}).join("")||'<div class="meta">Aucune partie jouée.</div>'}`;
+ $("pList").innerHTML=S.users.map(u=>{const t=stats(u.name);return `<div class="pnl"><b>${esc(u.name)}</b>${u.code?` <span class="meta">« ${esc(u.code)} »</span>`:""} <span class="badge">${esc(u.role.toUpperCase())}</span><div class="meta">${t.p} parties · ${t.w} victoires · ${t.l} défaites</div>${high()?`<select data-rk="${esc(u.name)}">${[...RK].reverse().map(x=>`<option ${x[1]===u.role?"selected":""}>${x[1]}</option>`).join("")}</select>`:""}</div>`}).join("");
+}
+function renderMe(){$("me").innerHTML=me?`<b>${esc(me.name)}</b><br>${esc(me.role)}<br><button class="b" data-lo="1" style="margin-top:6px">Déconnexion</button>`:"";$("rNom").value=me?me.name:"";$("rNom").readOnly=true;$("annEd").style.display=$("exoEd").style.display=high()?"block":"none"}
+// clics
+document.addEventListener("click",e=>{const d=e.target.dataset;
+ if(d.dc)act("cours.del",{id:d.dc});if(d.ci)act("cours.join",{id:d.ci});if(d.dr)act("rap.del",{id:d.dr});
+ if(d.v){const[id,st]=d.v.split("|");const note=prompt("Remarque pour l'auteur (facultatif) :","");if(note!==null)act("rap.rev",{id,status:st,note})}
+ if(d.xd)act("exo.del",{id:d.xd});if(d.pr)resetPw(d.pr);if(d.lo)logout()});
+document.addEventListener("change",async e=>{const n=e.target.dataset.rk;if(n&&!(await act("role.set",{name:n,role:e.target.value})))renderP()});
+document.addEventListener("change",e=>{const x=e.target.dataset.ex;if(x)act("ex.toggle",{id:x})});
+// shogi
+$("fl").innerHTML=[9,8,7,6,5,4,3,2,1].map(n=>`<span>${n}</span>`).join("");$("rl").innerHTML="abcdefghi".split("").map(c=>`<span>${c}</span>`).join("");
+const K={p:"歩",l:"香",n:"桂",s:"銀",g:"金",b:"角",r:"飛",k:"玉"};
+const isS=p=>p===p.toUpperCase();
+function renderG(){
+ const g=S.game;if(!g)return;const l=g.last;
+ $("board").innerHTML=g.cells.map((p,i)=>{const w=p&&!isS(p);const sy=p?(p.toLowerCase()==="k"&&!w?"王":K[p.toLowerCase()]):"";return `<button class="cell ${i===sel?"sel":""} ${i===l[0]||i===l[1]?"last":""}" data-i="${i}">${p?`<span class="p ${w?"w":""}">${sy}</span>`:""}</button>`}).join("");
+ const L=g.log||[];$("log").textContent=L.slice(-14).map((m,i)=>(L.length-Math.min(14,L.length)+i+1)+". "+m).join("   ")||"—";$("nS").textContent=g.sente||"—";$("nG").textContent=g.gote||"—";
+ const mine=me&&me.name;$("tS").textContent=g.sente&&g.sente===mine?"Se lever":"S'asseoir";$("tG").textContent=g.gote&&g.gote===mine?"Se lever":"S'asseoir";
+ $("turn").textContent=g.over?"Partie terminée — victoire de "+(g.winner==="S"?g.sente:g.gote)+" ("+(g.winner==="S"?"Sente":"Gote")+")":"Au tour de : "+((g.turn==="S"?g.sente:g.gote)||"personne")+" ("+(g.turn==="S"?"Sente":"Gote")+")";
+ const h=x=>x.split("").map(c=>K[c.toLowerCase()]).join(" ");
+ $("hS").textContent="Main de Sente : "+h(g.hs);$("hG").textContent="Main de Gote : "+h(g.hg);
+}
+$("board").onclick=async e=>{const b=e.target.closest(".cell");if(!b||!me)return;const i=+b.dataset.i,c=S.game.cells;
+ if(sel<0){if(c[i])sel=i}
+ else if(sel===i)sel=-1;
+ else if(c[i]&&isS(c[i])===isS(c[sel]))sel=i;
+ else{const f=sel;sel=-1;renderG();await act("move",{from:f,to:i});return}
+ renderG()};
+$("tS").onclick=()=>act(S.game.sente===me.name?"stand":"sit",{side:"S"});
+$("tG").onclick=()=>act(S.game.gote===me.name?"stand":"sit",{side:"G"});
+$("reset").onclick=()=>{if(confirm("Lancer une nouvelle partie ?"))act("reset")};
+// voix (WebRTC, signalisation par le serveur)
+let pc=null,stream=null,joined=false;
+const vs=m=>$("vSt").textContent=m,send=o=>api("rtc",{data:o}).catch(()=>{});
+function mkPc(){pc=new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});stream.getTracks().forEach(t=>pc.addTrack(t,stream));pc.ontrack=e=>{$("aud").srcObject=e.streams[0];vs("Vocal connecté.")};pc.onicecandidate=e=>e.candidate&&send({t:"ice",c:e.candidate.toJSON()});pc.onconnectionstatechange=()=>{if(["failed","disconnected","closed"].includes(pc.connectionState))vs("Vocal interrompu.")}}
+async function onRtc(m){const d=m.data,f=m.from;if(!d||!me||f===me.name||!joined)return;
+ try{if(d.t==="hello"){if(pc)return;if(me.name>f){mkPc();const o=await pc.createOffer();await pc.setLocalDescription(o);send({t:"offer",sdp:o.sdp})}else send({t:"hello"})}
+ else if(d.t==="offer"){if(!pc)mkPc();await pc.setRemoteDescription({type:"offer",sdp:d.sdp});const a=await pc.createAnswer();await pc.setLocalDescription(a);send({t:"answer",sdp:a.sdp})}
+ else if(d.t==="answer"&&pc)await pc.setRemoteDescription({type:"answer",sdp:d.sdp});
+ else if(d.t==="ice"&&pc)await pc.addIceCandidate(d.c)}catch(x){vs("Erreur vocal : "+x.message)}}
+$("vJoin").onclick=async()=>{
+ if(joined){joined=false;pc&&pc.close();pc=null;stream&&stream.getTracks().forEach(t=>t.stop());$("vJoin").textContent="Rejoindre le vocal";vs("");return}
+ try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(x){return vs("Micro refusé ou indisponible (HTTPS requis).")}
+ joined=true;$("vJoin").textContent="Quitter le vocal";vs("En attente de l'autre joueur…");send({t:"hello"})};
+// règlement
+const MV={k:{s:[[0,-1],[1,-1],[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1]]},r:{l:[[0,-1],[1,0],[0,1],[-1,0]]},b:{l:[[1,-1],[1,1],[-1,1],[-1,-1]]},g:{s:[[0,-1],[1,-1],[-1,-1],[1,0],[-1,0],[0,1]]},s:{s:[[0,-1],[1,-1],[-1,-1],[1,1],[-1,1]]},n:{s:[[1,-2],[-1,-2]]},l:{l:[[0,-1]]},p:{s:[[0,-1]]},h:{l:[[1,-1],[1,1],[-1,1],[-1,-1]],s:[[0,-1],[1,0],[0,1],[-1,0]]},d:{l:[[0,-1],[1,0],[0,1],[-1,0]],s:[[1,-1],[1,1],[-1,1],[-1,-1]]}};
+const dg=(m,ch)=>{let h="";for(let y=-2;y<=2;y++)for(let x=-2;x<=2;x++){let t="",tx="";if(!x&&!y){t="c";tx=ch}else{(m.s||[]).forEach(d=>{if(d[0]===x&&d[1]===y)t="s"});(m.l||[]).forEach(d=>{for(let k=1;k<=2;k++)if(d[0]*k===x&&d[1]*k===y)t="l"})}h+=`<i class="${t}">${tx}</i>`}return `<div class="mv">${h}</div>`};
+const PCS=[["k","王","Roi","Ōshō",1,"D'une case dans toutes les directions. C'est la pièce à protéger : si elle tombe, la partie est perdue."],["r","飛","Tour","Hisha",1,"Glisse en ligne droite, aussi loin qu'elle veut : avant, arrière et côtés."],["b","角","Fou","Kaku",1,"Glisse en diagonale, aussi loin qu'il veut."],["g","金","Général d'or","Kin",2,"D'une case : devant, en diagonale avant, sur les côtés et derrière. Jamais en diagonale arrière."],["s","銀","Général d'argent","Gin",2,"D'une case : devant et dans les quatre diagonales."],["n","桂","Cavalier","Keima",2,"Saute de deux cases vers l'avant puis d'une sur le côté. Seule pièce qui passe par-dessus les autres. Ne recule jamais."],["l","香","Lance","Kyōsha",2,"Glisse tout droit vers l'avant, aussi loin qu'elle veut. Ne recule jamais."],["p","歩","Pion","Fuhyō",9,"Avance d'une case, et capture la pièce située juste devant lui. Ne recule jamais."]];
+const PRO=[["と","g","Pion, Lance, Cavalier, Argent","Une fois promus, ils se déplacent tous comme un Général d'or."],["馬","h","Fou promu","Le Fou garde ses diagonales et gagne une case dans les quatre directions droites."],["龍","d","Tour promue","La Tour garde ses lignes droites et gagne une case en diagonale."]];
+$("rg").innerHTML=`<div class="rgs">
+<div class="pnl"><h3 style="margin-top:0">Le but</h3><p>Le Shogi se joue à deux, tour par tour, sur un plateau de 9×9 cases. Le but est de capturer le Roi adverse : on dit qu'on le met en échec et mat. <b>Sente</b> (en bas) joue en premier, <b>Gote</b> (en haut) répond.</p><p>Toutes les pièces sont des pions plats en forme de pentagone, de la même couleur. Seule leur pointe indique le propriétaire : elle vise toujours le camp adverse.</p></div>
+<h3>Les huit pièces</h3>
+<div class="pcs">${PCS.map(p=>`<div class="pnl"><div style="display:flex;gap:12px;align-items:center"><div class="pc">${p[1]}</div><div><b>${p[2]}</b><div class="meta">${p[3]} · ${p[4]} par joueur</div></div></div>${dg(MV[p[0]],p[1])}<div class="meta">${p[5]}</div></div>`).join("")}</div>
+<div class="meta leg"><span><i style="background:var(--acc)"></i>un pas</span><span><i style="background:rgba(168,139,214,.45)"></i>glisse jusqu'à un obstacle</span><span>L'avant est toujours vers le haut.</span></div>
+<h3>La mise en place</h3><p>Rangée du fond, de gauche à droite : Lance, Cavalier, Argent, Or, Roi, Or, Argent, Cavalier, Lance. Sur la deuxième rangée : le Fou et la Tour, de part et d'autre. Sur la troisième : les neuf Pions.</p>
+<h3>Jouer un tour</h3><ol><li>Déplacer une de ses pièces selon sa marche. Aucune pièce ne peut traverser les autres, sauf le Cavalier.</li><li>Capturer en arrivant sur une case occupée par l'adversaire : sa pièce est retirée du plateau.</li><li>La pièce capturée rejoint votre main. Vous pourrez la reposer plus tard, dans votre couleur : c'est ce qui rend le Shogi unique.</li></ol>
+<h3>La promotion (nari)</h3><p>Les trois dernières rangées côté adverse forment la zone de promotion. Quand une pièce y entre, en sort ou s'y déplace, on peut la retourner pour la renforcer. Le Roi et l'Or ne promeuvent pas. Un Pion, une Lance ou un Cavalier qui n'auraient plus aucun coup possible doivent être promus.</p>
+<div class="pcs">${PRO.map(p=>`<div class="pnl"><div style="display:flex;gap:12px;align-items:center"><div class="pc">${p[0]}</div><b>${p[2]}</b></div>${dg(MV[p[1]],p[0])}<div class="meta">${p[3]}</div></div>`).join("")}</div>
+<p>Une pièce promue qui est capturée redevient une pièce normale dans la main de l'adversaire.</p>
+<h3>Le parachutage (uchi)</h3><p>À la place de déplacer une pièce, on peut en poser une de sa main sur n'importe quelle case vide, face non promue. Trois interdits :</p><ol><li>Deux Pions non promus du même joueur sur la même colonne (nifu).</li><li>Poser un Pion, une Lance ou un Cavalier là où il n'aurait plus aucun coup.</li><li>Mettre le Roi adverse mat en parachutant un Pion (uchifuzume).</li></ol>
+<h3>La fin de partie</h3><p>Quand le Roi est menacé, c'est un échec (ōte) : le joueur doit y répondre, en déplaçant le Roi, en capturant l'attaquant ou en bloquant la ligne. S'il ne peut pas, c'est le mat (tsumi) et la partie est perdue. On peut aussi abandonner en disant « toryō ». Une même position répétée quatre fois donne une partie nulle (sennichite).</p>
+<h3>Vocabulaire</h3><div class="chips"><span><b>Sente</b> premier joueur</span><span><b>Gote</b> second joueur</span><span><b>Ōte</b> échec</span><span><b>Tsumi</b> mat</span><span><b>Nari</b> promotion</span><span><b>Uchi</b> parachutage</span><span><b>Toryō</b> abandon</span></div>
+<div class="pnl site" style="margin-top:30px"><b>Sur ce site</b><ol><li>Dans l'onglet Shogi, assieds-toi côté Sente ou Gote. Seul le joueur dont c'est le tour peut déplacer une pièce.</li><li>Les coordonnées affichées (9 à 1, a à i) servent à lire le journal des derniers coups, par exemple 7g-7f.</li><li>Capturer le Roi adverse termine la partie : la victoire et la défaite s'ajoutent automatiquement au profil des deux joueurs.</li><li>Le plateau ne vérifie pas encore les déplacements, la promotion ni le parachutage : ces règles se respectent entre joueurs. Les pièces capturées apparaissent dans votre main.</li></ol></div></div>`;
+// enseignements
+const DISC=[
+{id:"oratoire",k:"話",t:"Art oratoire",i:"Parler, c'est choisir ce que l'autre va retenir. Un agent de l'ombre n'a pas besoin de parler beaucoup : il a besoin d'être écouté.",p:[["Le silence est une arme","Une pause de deux secondes avant une phrase importante attire toute l'attention. Ne comble jamais un blanc par peur : c'est l'autre qui finit par le remplir."],["Baisser la voix","Celui qui parle bas force les autres à se pencher vers lui. Crier fait fuir l'attention, murmurer la retient."],["Une idée par phrase","Phrases courtes, mots simples. Répète l'idée clé trois fois, sous trois formes différentes, et elle sera retenue."],["Poser plutôt qu'affirmer","Celui qui pose les questions dirige la conversation. Une affirmation se discute, une question oblige à réfléchir."],["Parler comme l'autre","Marchand, noble, villageois, shinobi : adapte ton vocabulaire et ton rythme au sien. On fait confiance à ce qui nous ressemble."]],ex:[["o1","Prépare ta présentation en trente secondes, sous ton nom de code, sans hésiter ni chercher tes mots."],["o2","Raconte une même rumeur de trois façons : froide, grave, légère. Observe laquelle on écoute le mieux."],["o3","Pendant une conversation, pose trois questions à la suite sans jamais donner ton avis."],["o4","Glisse une pause de deux secondes avant ta phrase la plus importante."]]},
+{id:"manip",k:"操",t:"Manipulation",i:"Le clan Nara le sait : une bataille se gagne avant d'être livrée. Influencer, c'est comprendre ce que veut l'autre et lui montrer que le chemin passe par là où tu l'attends.",p:[["Comprendre avant d'influencer","Chacun a un besoin dominant : sécurité, argent, reconnaissance, appartenance, vengeance. Trouve-le avant de parler."],["La réciprocité","Un petit service crée une dette morale. Donne un peu en premier, demande ensuite."],["Le cadrage","La même information change de poids selon la façon de la présenter : « tu perds dix ryō » ou « tu en sauves quatre-vingt-dix »."],["Les choix limités","Propose deux options qui mènent toutes deux là où tu veux. La cible a l'impression de décider."],["Le miroir","Reprends le rythme, la posture, les mots de l'autre. Il se sentira compris sans savoir pourquoi."],["Toujours laisser une sortie","Une cible humiliée devient un ennemi. Une cible qui croit que l'idée venait d'elle devient un allié."]],ex:[["m1","Choisis trois personnes de ton entourage et note le besoin qui les guide : sécurité, argent, reconnaissance, appartenance ou vengeance."],["m2","Obtiens une information mineure en rendant d'abord un petit service."],["m3","Reprends une demande refusée et reformule-la sous un autre angle."],["m4","Prépare deux options pour une même décision, dont l'une comme l'autre te conviennent."],["m5","Reprends discrètement le rythme et les mots d'un interlocuteur pendant toute une conversation."]]},
+{id:"info",k:"探",t:"Prise d'information",i:"Une information vaut ce que vaut sa source. L'école ne cherche pas la rumeur la plus spectaculaire, mais la vérité la plus utile sur Konoha et Suna.",p:[["Observer avant d'interroger","Habitudes, horaires, lieux, entourage : ce que les gens font en dit plus que ce qu'ils disent."],["Recouper","Une seule source ne suffit jamais. Deux sources indépendantes pour « Confirmé », une seule pour « Probable », aucune pour « Rumeur »."],["Séparer faits, avis, rumeurs","Écris ce que tu as vu, puis ce que tu en déduis, puis ce qu'on t'a raconté. Ne mélange jamais les trois."],["Écouter les détails involontaires","Ce qu'on laisse échapper en passant vaut souvent plus que la réponse à ta question."],["Noter vite et juste","Qui, quoi, où, quand, combien, et quelle source. Un rapport sans date ni source ne sert à rien."]],ex:[["i1","Observe un lieu pendant une heure et note uniquement ce que tu as vu : horaires, allées et venues, habitudes."],["i2","Recoupe une information avec une deuxième source indépendante."],["i3","Classe cinq informations apprises récemment en Confirmé, Probable ou Rumeur."],["i4","Rédige un rapport en dix lignes au plus : qui, quoi, où, quand, source."],["i5","Retrouve un détail laissé échapper en passant dans une conversation et explique ce qu'il révèle."]]},
+{id:"conseils",k:"心",t:"Conseils de l'école",i:"Ce que les anciens répètent aux nouveaux Pions.",p:[["Ne jamais mentir sur ses sources","On peut tromper un ennemi, pas l'école. Un rapport inventé coûte plus cher qu'un rapport vide."],["Douter à voix haute","Un Pion qui doute pose la question. Un Pion qui invente se fait renvoyer."],["Pas de visage, pas de nom","Ne parle jamais de l'école hors de ses murs. Ici, on est une ombre parmi les autres."],["Penser trois coups à l'avance","Comme au Shogi : chaque action a un coût et ouvre une réponse. C'est pour cela que l'école s'entraîne sur le plateau."]],ex:[["c1","Trouve ton nom de code à utiliser à l'école : court, sans lien avec ton vrai nom."],["c2","Choisis un endroit sûr pour garder tes notes, et le moyen de les faire disparaître en un instant."],["c3","Rédige ton premier rapport et fais-le valider par un haut gradé."],["c4","Rejoins un cours planifié."],["c5","Étudie le règlement du Shogi, puis dispute une partie jusqu'à son terme."]]}];
+DISC.unshift(DISC.pop());
+const openEns=new Set(["conseils"]);
+function renderE(){$("ens").innerHTML=DISC.map(d=>{const dn=(me&&me.done)||[],L=allEx(d),n=L.filter(x=>dn.includes(x[0])).length;return `<details class="pnl" data-d="${d.id}" ${openEns.has(d.id)?"open":""}><summary><b>${d.k} ${d.t}</b><span class="badge">${n}/${L.length}</span></summary><p class="meta" style="margin:10px 0">${d.i}</p><div class="pr">${d.p.map(p=>`<div><b>${p[0]}</b><div class="meta">${p[1]}</div></div>`).join("")}</div><h3 style="margin-top:14px">Exercices</h3>${L.map(x=>`<div style="display:flex;gap:10px;align-items:flex-start;justify-content:space-between"><label style="flex:1"><input type="checkbox" data-ex="${x[0]}" ${dn.includes(x[0])?"checked":""}><span>${x[2]?esc(x[1]):x[1]}${x[2]?` <span class="badge">${x[2].due?"avant le "+esc(x[2].due):"ajouté par "+esc(x[2].author)}</span>`:""}</span></label>${x[2]&&high()?`<button class="b no" data-xd="${x[0]}">Retirer</button>`:""}</div>`).join("")}</details>`}).join("")}
+$("ens").addEventListener("toggle",e=>{const d=e.target.dataset.d;if(!d)return;e.target.open?openEns.add(d):openEns.delete(d)},true);
+function renderLB(){const m={};S.parties.forEach(x=>{[[x.sente,"S"],[x.gote,"G"]].forEach(([n,sd])=>{if(!n)return;const o=m[n]=m[n]||{n,w:0,l:0};x.winner===sd?o.w++:o.l++})});const L=Object.values(m).sort((a,b)=>b.w-a.w||a.l-b.l).slice(0,5);$("lb").innerHTML=L.map((o,i)=>`${i+1}. ${esc(o.n)} — ${o.w}V ${o.l}D`).join("<br>")||"Aucune partie terminée."}
+function renderAnn(){const a=S.annonce;$("ann").style.display=a?"block":"none";if(a)$("ann").innerHTML=`<b>Annonce</b> — ${esc(a.text)} <span class="meta">(${esc(a.by)})</span>`}
+const allEx=d=>d.ex.concat((S.exos||[]).filter(e=>e.disc===d.id).map(e=>[e.id,e.text,e]));
+$("exD").innerHTML=DISC.map(d=>`<option value="${d.id}">${d.t}</option>`).join("");
+$("exGo").onclick=async()=>{if(await act("exo.add",{disc:$("exD").value,text:$("exT").value,due:$("exDue").value})){$("exT").value="";$("exDue").value="";toast("Exercice ajouté.")}};
+$("cdGo").onclick=async()=>{if(await act("code.set",{code:$("cdIn").value}))toast("Nom de code enregistré.")};
+// connexion
+const gate=v=>$("gate").style.display=v?"flex":"none";
+function renderAll(){renderMe();renderC();renderR();renderP();renderG();renderE();renderLB();renderAnn()}
+function openStream(){if(es)clearInterval(es);es=setInterval(refresh,2000);}
+async function refresh(){if(polling)return;polling=true;try{const j=await api("state",{since:cursor});cursor=j.cursor;S=j;me=j.me;renderAll();for(const m of j.messages||[])await onRtc(m);}catch(e){toast(e.message);}finally{polling=false;}}
+async function boot(){try{S=await api("me");me=S.me;cursor=S.cursor;gate(false);renderAll();openStream();}catch(e){gate(true);$("gErr").textContent=e.message;if(e.characters){const sel=$("character");sel.replaceChildren(...e.characters.map(c=>{const o=document.createElement("option");o.value=c.char_key;o.textContent=c.name;return o;}));sel.hidden=false;$("choose").hidden=false;}}}
+async function logout(){if(es)clearInterval(es);await sb.auth.signOut();me=null;chosen=null;cursor=null;renderMe();gate(true);}
+$("choose").onclick=()=>{chosen=$("character").value;boot();};
+$("gGo").onclick=async()=>{try{if(!sb)throw Error("Renseigne config.js pour activer la connexion.");const {error}=await sb.auth.signInWithOAuth({provider:"discord",options:{redirectTo:location.origin+location.pathname,scopes:"identify"}});if(error)throw error;}catch(e){$("gErr").textContent=e.message;}};
+async function initialize(){gate(true);try{const c=window.SITE_CONFIG;if(!c?.supabaseUrl||!c?.supabaseKey)throw Error("Le site est prêt. Renseigne config.js pour activer Supabase et Discord.");sb=window.supabase.createClient(c.supabaseUrl,c.supabaseKey,{auth:{flowType:"pkce",detectSessionInUrl:true}});const {data:{session},error}=await sb.auth.getSession();if(error)throw error;if(session)await boot();sb.auth.onAuthStateChange(event=>{if(event==="SIGNED_OUT"){if(es)clearInterval(es);gate(true);}});}catch(e){$("gErr").textContent=e.message;}}
+decor("home");renderAll();initialize();
+</script>
+</body>
+</html>

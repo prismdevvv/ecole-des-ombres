@@ -1,0 +1,2 @@
+[functions.ecole]
+verify_jwt = false
