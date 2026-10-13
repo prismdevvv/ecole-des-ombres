@@ -1,5 +1,7 @@
 # École des Ombres — GitHub Pages + Supabase + Discord
 
+> État actualisé : dépôt publié sur https://prismdevvv.github.io/ecole-des-ombres/ ; tables créées et fonction `ecole` déployée dans le projet `roszuwquxrbgszocydue`. 3 261 personnages importés. La synchronisation s'exécute désormais directement dans Supabase toutes les 30 minutes, via `pg_cron` et la fonction privée `sync_school_zenkai` (migration 002). Le workflow GitHub de synchronisation est supprimé : aucun secret Supabase n'est nécessaire dans GitHub. Les étapes de création et de secrets ci-dessous sont historiques ; ne pas les refaire sur ce projet. Les URL de retour sont configurées. Il reste à renseigner et activer le fournisseur Discord, puis à vérifier une connexion réelle et attribuer le premier Roi.
+
 Version adaptée du site existant, avec son interface, les cours, rapports, grades, exercices, annonces, shogi et signalisation vocale. Le navigateur est hébergé sur GitHub Pages ; les actions et permissions sont vérifiées dans une fonction Supabase. Rafraîchissement toutes les deux secondes. Le vocal dépend du réseau des participants (serveur STUN, sans relais TURN).
 
 ## État de livraison
